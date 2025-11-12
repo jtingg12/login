@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Google 登录示例</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  body { font-family: Arial; text-align: center; margin-top: 100px; }
+  img { width: 80px; border-radius: 50%; display: block; margin: 10px auto; }
+</style>
+</head>
+<body>
+
+<h2>点击 Google 登录</h2>
+
+<div id="g_id_onload"
+     data-client_id="53254119460-3hj1559jtb4c2kthhqjijokjevjk8ua4.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+
+<div class="g_id_signin"></div>
+
+<div id="user-info" style="display:none;">
+  <img id="avatar" src="">
+  <p id="name"></p>
+  <p id="email"></p>
+</div>
+
+<script>
+  // 解析 Google 返回的 id_token
+  function decodeJwtResponse(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c=>{
+      return '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  }
+
+  // 当用户登录成功时
+  function handleCredentialResponse(response) {
+    const payload = decodeJwtResponse(response.credential);
+    document.getElementById('avatar').src = payload.picture;
+    document.getElementById('name').innerText = payload.name;
+    document.getElementById('email').innerText = payload.email;
+    document.getElementById('user-info').style.display = 'block';
+    console.log('用户登录信息:', payload);
+    // ⚠️ 这里你可以把 payload 发到你后端存储
+  }
+</script>
+
+</body>
+</html>
